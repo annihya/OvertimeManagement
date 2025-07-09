@@ -6,17 +6,35 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/bootstrap/css/bootstrap.min.css" />
+
+    <!-- AdminLTE 2 Core CSS -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/css/AdminLTE.min.css" />
+    <link rel="stylesheet" href="~/Content/AdminLTE/css/skins/skin-blue.min.css" />
+
+    <!-- Font Awesome / Ionicons for AdminLTE 2 -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/plugins/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/Content/AdminLTE/plugins/ionicons/ionicons.min.css" />
+
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/plugins/daterangepicker/daterangepicker.css" />
 </head>
-<body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+<body class="skin-blue sidebar-mini">
+    <nav class="navbar navbar-inverse">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="collapse navbar-collapse" id="main-navbar">
+                <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
@@ -32,8 +50,16 @@
         </footer>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <!-- jQuery 2.2.4 -->
+    <script src="~/Scripts/AdminLTE/plugins/jQuery/jquery-2.2.4.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="~/Scripts/AdminLTE/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/Scripts/AdminLTE/js/app.min.js"></script>
+    <!-- Plugin JS -->
+    <script src="~/Scripts/AdminLTE/plugins/chartjs/Chart.min.js"></script>
+    <script src="~/Scripts/AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
