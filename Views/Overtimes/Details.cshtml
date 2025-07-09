@@ -1,0 +1,58 @@
+﻿@model OvertimeManagement.Models.Overtime
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Overtime</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TimeStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeFinish)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TimeFinish)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ActualHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ActualHours)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CalculatedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CalculatedHours)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.OvertimeID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

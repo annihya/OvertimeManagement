@@ -1,0 +1,57 @@
+﻿@model IEnumerable<OvertimeManagement.Models.Overtime>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.EmployeeID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TimeStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TimeFinish)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ActualHours)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CalculatedHours)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.EmployeeID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TimeStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TimeFinish)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ActualHours)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CalculatedHours)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.OvertimeID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.OvertimeID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.OvertimeID })
+        </td>
+    </tr>
+}
+
+</table>
