@@ -14,12 +14,17 @@ namespace OvertimeManagement.Controllers
 {
     public class OvertimesController : Controller
     {
-        private DBModel db = new DBModel();
+        private DBModel db;
+
+        public OvertimesController()
+        {
+            db = new DBModel();
+        }
 
         // GET: Overtimes
-        public async Task<ActionResult> Index(CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Index()
         {
-            return View(await db.Overtimes.ToListAsync(cancellationToken));
+            return View(await db.Overtimes.ToListAsync());
         }
 
         // GET: Overtimes/Details/5
@@ -48,13 +53,13 @@ namespace OvertimeManagement.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Create([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime)
         {
             if (ModelState.IsValid)
             {
                 overtime.OvertimeID = Guid.NewGuid();
                 db.Overtimes.Add(overtime);
-                await db.SaveChangesAsync(cancellationToken);
+                await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
@@ -81,12 +86,12 @@ namespace OvertimeManagement.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Edit([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(overtime).State = EntityState.Modified;
-                await db.SaveChangesAsync(cancellationToken);
+                await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
             return View(overtime);
@@ -110,11 +115,11 @@ namespace OvertimeManagement.Controllers
         // POST: Overtimes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
             Overtime overtime = await db.Overtimes.FindAsync(id);
             db.Overtimes.Remove(overtime);
-            await db.SaveChangesAsync(cancellationToken);
+            await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 

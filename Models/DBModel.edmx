@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="OvertimeManagementModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="OvertimeManagementModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Department">
           <Key>
             <PropertyRef Name="DepartmentID" />
@@ -20,15 +20,15 @@
           <Property Name="NIK" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="FullName" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="Allowance" Type="nvarchar(max)" />
-          <Property Name="DepartmentID" Type="nvarchar" MaxLength="50" />
-          <Property Name="PositionID" Type="nvarchar" MaxLength="50" />
+          <Property Name="DepartmentID" Type="uniqueidentifier" />
+          <Property Name="PositionID" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="Overtime">
           <Key>
             <PropertyRef Name="OvertimeID" />
           </Key>
           <Property Name="OvertimeID" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="EmployeeID" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="EmployeeID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="TimeStart" Type="datetime" Nullable="false" />
           <Property Name="TimeFinish" Type="datetime" Nullable="false" />
           <Property Name="ActualHours" Type="int" Nullable="false" />
@@ -47,35 +47,40 @@
           <EntitySet Name="Overtime" EntityType="Self.Overtime" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Position" EntityType="Self.Position" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="OvertimeManagementModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="OvertimeManagement" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Departments" EntityType="OvertimeManagementModel.Department" />
+          <EntitySet Name="Employees" EntityType="OvertimeManagementModel.Employee" />
+          <EntitySet Name="Overtimes" EntityType="OvertimeManagementModel.Overtime" />
+          <EntitySet Name="Positions" EntityType="OvertimeManagementModel.Position" />
+        </EntityContainer>
         <EntityType Name="Department">
           <Key>
             <PropertyRef Name="DepartmentID" />
           </Key>
           <Property Name="DepartmentID" Type="Guid" Nullable="false" />
-          <Property Name="DepartmentName" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DepartmentName" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="EmployeeID" />
           </Key>
           <Property Name="EmployeeID" Type="Guid" Nullable="false" />
-          <Property Name="NIK" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="FullName" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="NIK" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="Allowance" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="DepartmentID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="PositionID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DepartmentID" Type="Guid" />
+          <Property Name="PositionID" Type="Guid" />
         </EntityType>
         <EntityType Name="Overtime">
           <Key>
             <PropertyRef Name="OvertimeID" />
           </Key>
           <Property Name="OvertimeID" Type="Guid" Nullable="false" />
-          <Property Name="EmployeeID" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EmployeeID" Type="Guid" Nullable="false" />
           <Property Name="TimeStart" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="TimeFinish" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="ActualHours" Type="Int32" Nullable="false" />
@@ -86,14 +91,8 @@
             <PropertyRef Name="PositionID" />
           </Key>
           <Property Name="PositionID" Type="Guid" Nullable="false" />
-          <Property Name="PositionName" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PositionName" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityContainer Name="OvertimeManagement" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Departments" EntityType="Self.Department" />
-          <EntitySet Name="Employees" EntityType="Self.Employee" />
-          <EntitySet Name="Overtimes" EntityType="Self.Overtime" />
-          <EntitySet Name="Positions" EntityType="Self.Position" />
-        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -103,40 +102,40 @@
           <EntitySetMapping Name="Departments">
             <EntityTypeMapping TypeName="OvertimeManagementModel.Department">
               <MappingFragment StoreEntitySet="Department">
-                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
                 <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Employees">
             <EntityTypeMapping TypeName="OvertimeManagementModel.Employee">
               <MappingFragment StoreEntitySet="Employee">
-                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
-                <ScalarProperty Name="NIK" ColumnName="NIK" />
-                <ScalarProperty Name="FullName" ColumnName="FullName" />
-                <ScalarProperty Name="Allowance" ColumnName="Allowance" />
-                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
                 <ScalarProperty Name="PositionID" ColumnName="PositionID" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+                <ScalarProperty Name="Allowance" ColumnName="Allowance" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="NIK" ColumnName="NIK" />
+                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Overtimes">
             <EntityTypeMapping TypeName="OvertimeManagementModel.Overtime">
               <MappingFragment StoreEntitySet="Overtime">
-                <ScalarProperty Name="OvertimeID" ColumnName="OvertimeID" />
-                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
-                <ScalarProperty Name="TimeStart" ColumnName="TimeStart" />
-                <ScalarProperty Name="TimeFinish" ColumnName="TimeFinish" />
-                <ScalarProperty Name="ActualHours" ColumnName="ActualHours" />
                 <ScalarProperty Name="CalculatedHours" ColumnName="CalculatedHours" />
+                <ScalarProperty Name="ActualHours" ColumnName="ActualHours" />
+                <ScalarProperty Name="TimeFinish" ColumnName="TimeFinish" />
+                <ScalarProperty Name="TimeStart" ColumnName="TimeStart" />
+                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
+                <ScalarProperty Name="OvertimeID" ColumnName="OvertimeID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Positions">
             <EntityTypeMapping TypeName="OvertimeManagementModel.Position">
               <MappingFragment StoreEntitySet="Position">
-                <ScalarProperty Name="PositionID" ColumnName="PositionID" />
                 <ScalarProperty Name="PositionName" ColumnName="PositionName" />
+                <ScalarProperty Name="PositionID" ColumnName="PositionID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

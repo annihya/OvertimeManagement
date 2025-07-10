@@ -18,7 +18,7 @@ namespace OvertimeManagement.Models
         public string NIK { get; set; }
         public string FullName { get; set; }
         public string Allowance { get; set; }
-        public string DepartmentID { get; set; }
-        public string PositionID { get; set; }
+        public Nullable<System.Guid> DepartmentID { get; set; }
+        public Nullable<System.Guid> PositionID { get; set; }
     }
 }

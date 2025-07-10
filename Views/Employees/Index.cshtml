@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OvertimeManagement.Models.Employee>
+﻿@model IEnumerable<OvertimeManagement.ViewModel.EmployeeViewModel.EmployeeDisplayModel>
 
 @{
     ViewBag.Title = "Index";
@@ -18,13 +18,10 @@
             @Html.DisplayNameFor(model => model.FullName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Allowance)
+            @Html.DisplayNameFor(model => model.DepartmentName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.DepartmentID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PositionID)
+            @Html.DisplayNameFor(model => model.PositionName)
         </th>
         <th></th>
     </tr>
@@ -38,13 +35,10 @@
             @Html.DisplayFor(modelItem => item.FullName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Allowance)
+            @Html.DisplayFor(modelItem => item.DepartmentName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.DepartmentID)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PositionID)
+            @Html.DisplayFor(modelItem => item.PositionName)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.EmployeeID }) |

@@ -13,10 +13,12 @@ public class DBModel : DbContext
     // For more information refer to the documentation:
     // http://msdn.microsoft.com/en-us/data/jj591621.aspx
 
-    public DBModel() : base("name=DBModel")
+    public DBModel() : base("name=OvertimeManagement")
     {
     }
 
-    public System.Data.Entity.DbSet<OvertimeManagement.Models.Overtime> Overtimes { get; set; }
-    public System.Data.Entity.DbSet<OvertimeManagement.Models.Employee> Employees { get; set; }
+    public DbSet<OvertimeManagement.Models.Overtime> Overtimes { get; set; }
+    public DbSet<OvertimeManagement.Models.Employee> Employees { get; set; }
+    public DbSet<OvertimeManagement.Models.Department> Departments { get; set; }
+    public DbSet<OvertimeManagement.Models.Position> Positions { get; set; }
 }
