@@ -15,7 +15,7 @@ namespace OvertimeManagement.Models
     public partial class Overtime
     {
         public System.Guid OvertimeID { get; set; }
-        public System.Guid EmployeeID { get; set; }
+        public string EmployeeID { get; set; }
         public System.DateTime TimeStart { get; set; }
         public System.DateTime TimeFinish { get; set; }
         public int ActualHours { get; set; }

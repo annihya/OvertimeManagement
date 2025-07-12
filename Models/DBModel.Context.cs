@@ -13,10 +13,10 @@ namespace OvertimeManagement.Models
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class OvertimeManagement : DbContext
+    public partial class OvertimeManagementEntities : DbContext
     {
-        public OvertimeManagement()
-            : base("name=OvertimeManagement")
+        public OvertimeManagementEntities()
+            : base("name=OvertimeManagementEntities")
         {
         }
     

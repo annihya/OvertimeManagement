@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
@@ -9,39 +8,23 @@ using System.Web;
 using System.Web.Mvc;
 using OvertimeManagement.Models;
 using OvertimeManagement.ViewModel;
-using static OvertimeManagement.ViewModel.EmployeeViewModel;
+using OvertimeManagement.Helper;
 
 namespace OvertimeManagement.Controllers
 {
     public class EmployeesController : Controller
     {
-        private DBModel db;
+        private readonly OvertimeManagementEntities db;
 
         public EmployeesController()
         {
-            db = new DBModel();
+            db = new OvertimeManagementEntities();
         }
 
         // GET: Employees
         public async Task<ActionResult> Index()
         {
-            var employees = await (from emp in db.Employees
-
-                                   join dept in db.Departments on emp.DepartmentID equals dept.DepartmentID into deptGroup
-                                   from dept in deptGroup.DefaultIfEmpty()
-
-                                   join pos in db.Positions on emp.PositionID equals pos.PositionID into posGroup
-                                   from pos in posGroup.DefaultIfEmpty()
-                                   
-                                   select new EmployeeDisplayModel
-                                   {
-                                       EmployeeID = emp.EmployeeID,
-                                       NIK = emp.NIK,
-                                       FullName = emp.FullName,
-                                       DepartmentName = dept != null ? dept.DepartmentName : "N/A",
-                                       PositionName = pos != null ? pos.PositionName : "N/A"
-                                   })
-                                   .ToListAsync();
+            var employees = await EmployeeHelper.GetEmployees();
 
             return View(employees);
         }
@@ -64,38 +47,67 @@ namespace OvertimeManagement.Controllers
         // GET: Employees/Create
         public async Task<ActionResult> Create()
         {
-            var departmentList = await db.Departments.ToListAsync();
-            var positionList = await db.Positions.ToListAsync();
+            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments(); 
+            ViewBag.PositionList = await EmployeeHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList();
+            ViewBag.IsEditMode = false;
 
-            ViewBag.PositionList = new SelectList(positionList, "PositionID", "PositionName");
-            ViewBag.DepartmentList = new SelectList(departmentList, "DepartmentID", "DepartmentName");
-
-            return View();
+            return PartialView("_EmployeeForm");
         }
 
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "EmployeeID,NIK,FullName,Allowance,DepartmentID,PositionID")] Employee employee)
+        public async Task<ActionResult> Create(EmployeeDisplayViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                // Check if NIK already exists
-                if (await IsNIKExists(employee.NIK))
-                {
-                    ModelState.AddModelError("NIK", "NIK is already in use.");
-                    return View(employee);
-                }
+            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments();
+            ViewBag.PositionList = await EmployeeHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(model.Allowance);
+            ViewBag.IsEditMode = false;
 
-                employee.EmployeeID = Guid.NewGuid();
-                db.Employees.Add(employee);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+            {
+                // Validate error → re-render the PartialView with error messages
+                return PartialView("_EmployeeForm", model); 
             }
 
-            return View(employee);
+            try
+            {
+                // Check if NIK already exists
+                if (await EmployeeHelper.IsNIKExists(model.NIK))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "The NIK is already in use by another employee."
+                    });
+                }
+
+                var employee = new Employee
+                {
+                    EmployeeID = Guid.NewGuid(),
+                    NIK = model.NIK,
+                    FullName = model.FullName,
+                    Allowance = string.Join(",", model.AllowanceList.Where(a => a.IsChecked).Select(a => a.AllowanceType)),
+                    DepartmentID = model.DepartmentID,
+                    PositionID = model.PositionID
+                };
+
+                db.Employees.Add(employee);
+                await db.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Employee created successfully.",
+                    redirectUrl = Url.Action("Index", "Employee")
+                });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while creating the employee: " + ex.Message);
+                return PartialView("_EmployeeForm", model);
+            }
         }
 
         // GET: Employees/Edit/5
@@ -105,28 +117,66 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = await db.Employees.FindAsync(id);
+
+            var employee = await EmployeeHelper.GetEmployeeById(id.Value);
             if (employee == null)
             {
                 return HttpNotFound();
             }
-            return View(employee);
+
+            ViewBag.DepartmentList = new SelectList(db.Departments, "DepartmentID", "Name", employee.DepartmentID);
+            ViewBag.PositionList = new SelectList(db.Positions, "PositionID", "Name", employee.PositionID);
+            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(employee.Allowance);
+            ViewBag.IsEditMode = true;
+
+            return PartialView("_EmployeeForm", employee);
         }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "EmployeeID,NIK,FullName,Allowance,DepartmentID,PositionID")] Employee employee)
+        public async Task<ActionResult> Edit(EmployeeDisplayViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments();
+            ViewBag.PositionList = await EmployeeHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(model.Allowance);
+            ViewBag.IsEditMode = true;
+
+            if (!ModelState.IsValid)
             {
+                // Validate error → re-render the PartialView with error messages
+                return PartialView("_EmployeeForm", model);
+            }
+
+            try
+            {
+                var employee = await db.Employees.FindAsync(model.EmployeeID);
+                if (employee == null)
+                {
+                    return HttpNotFound();
+                }
+
+                employee.NIK = model.NIK;
+                employee.FullName = model.FullName;
+                employee.Allowance = string.Join(",", model.AllowanceList.Where(a => a.IsChecked).Select(a => a.AllowanceType));
+                employee.DepartmentID = model.DepartmentID;
+                employee.PositionID = model.PositionID;
+
                 db.Entry(employee).State = EntityState.Modified;
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Employee created successfully.",
+                    redirectUrl = Url.Action("Index", "Employee")
+                });
             }
-            return View(employee);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the employee: " + ex.Message);
+                return PartialView("_EmployeeForm", model);
+            }
         }
 
         // GET: Employees/Delete/5
@@ -155,17 +205,18 @@ namespace OvertimeManagement.Controllers
             return RedirectToAction("Index");
         }
 
-        // AJAX: Check if NIK is available
         [HttpPost]
         public async Task<JsonResult> CheckNIKAvailability(string nik)
         {
-            var exists = await IsNIKExists(nik);
-            return Json(!exists, JsonRequestBehavior.AllowGet);
-        }
-
-        public async Task<bool> IsNIKExists(string nik)
-        {
-            return await db.Employees.AnyAsync(e => e.NIK == nik);
+            try
+            {
+                var exists = await EmployeeHelper.IsNIKExists(nik);
+                return Json(!exists, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred while checking NIK availability: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         protected override void Dispose(bool disposing)

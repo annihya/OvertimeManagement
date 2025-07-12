@@ -1,0 +1,142 @@
+@using OvertimeManagement.Models;
+@model OvertimeManagement.ViewModel.EmployeeDisplayViewModel
+@{
+    bool isEditMode = ViewBag.IsEditMode;
+    string formAction = isEditMode ? "Edit" : "Create";
+    string modalTitle = isEditMode ? "Employee Detail" : "Add New Employee";
+
+    string employeeID = isEditMode ? Model.EmployeeID.ToString() : string.Empty;
+    var departmentList = ViewBag.DepartmentList as List<OvertimeManagement.Models.Department>;
+    var positionList = ViewBag.PositionList as List<OvertimeManagement.Models.Position>;
+    var allowanceList = ViewBag.AllowanceList as List<OvertimeManagement.ViewModel.AllowanceCheckViewModel>;
+}
+
+<div class="modal fade" id="employeeDetailModal_@employeeID" tabindex="-1" role="dialog" aria-labelledby="employeeDetailLabel_@employeeID">
+    <div class="modal-dialog" role="document">
+        <form id="employeeForm_@employeeID" method="post" action="@Url.Action(formAction, "Employees")">
+            @Html.AntiForgeryToken()
+            @if (!isEditMode)
+            {
+                @Html.HiddenFor(model => model.EmployeeID)
+            }
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="employeeDetailLabel_@employeeID">@modalTitle</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NIK, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.NIK, new { htmlAttributes = new { @id = $"NIK_{employeeID}", @class = "form-control", placeholder = "NIK" } })
+                        <span id="nik-duplicate-message" class="text-danger" style="display:none;">NIK already exists.</span>
+                        @Html.ValidationMessageFor(model => model.NIK, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @id = $"FullName_{employeeID}", @class = "form-control", placeholder = "Full name" } })
+                        @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentID, htmlAttributes: new { @class = "control-label" })
+                        @Html.DropDownListFor(model => model.DepartmentID, new SelectList(departmentList, "DepartmentID", "DepartmentName"), "-- Select Department --", new { @id = $"DepartmentID_{employeeID}", @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.DepartmentID, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PositionID, htmlAttributes: new { @class = "control-label" })
+                        @Html.DropDownListFor(model => model.PositionID, new SelectList(positionList, "PositionID", "PositionName"), "-- Select Position --", new { @id = $"PositionID_{employeeID}", @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.PositionID, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AllowanceList, htmlAttributes: new { @class = "control-label" })
+                        @for (int i = 0; i < allowanceList.Count; i++)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBox($"AllowanceList[{i}].IsChecked", allowanceList[i].IsChecked)
+                                    @Html.Hidden($"AllowanceList[{i}].AllowanceType", allowanceList[i].AllowanceType)
+                                    @allowanceList[i].AllowanceType
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn_@employeeID">Save</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/adminlte")
+
+    <script type="text/javascript">
+        // AJAX form submit on form submit event
+        $(document).on('submit', '#employeeForm_@employeeID', function (e) {
+            e.preventDefault();
+            var $form = $(this);
+            var employeeID = '@employeeID';
+            var $btn = $('#saveBtn_' + employeeID);
+            $btn.prop('disabled', true);
+            $.ajax({
+                url: $form.attr('action') || window.location.pathname,
+                type: 'POST',
+                data: $form.serialize(),
+                success: function (result) {
+                    if (result.success) {
+                        $('#employeeDetailModal_' + employeeID).modal('hide');
+                        location.reload();
+                    } else if (result.message) {
+                        alert(result.message);
+                        $btn.prop('disabled', false);
+                    } else {
+                        // Replace modal content with returned partial view (validation errors)
+                        $('#employeeModalContainer').html(result);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while saving the employee.');
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+
+        // NIK duplicate check
+        $(document).on('blur change', '[id^="NIK_"]', function () {
+            var $input = $(this);
+            var nik = $input.val();
+            var employeeID = this.id.replace('NIK_', '');
+            var $btn = $('#saveBtn_' + employeeID);
+            var $msg = $('#nik-duplicate-message');
+
+            if (nik) {
+                $.post('/Employees/CheckNIKAvailability', { nik: nik }, function (result) {
+                    if (!result) {
+                        $msg.show();
+                        $btn.prop('disabled', true);
+                    } else {
+                        $msg.hide();
+                        $btn.prop('disabled', false);
+                    }
+                });
+            } else {
+                $msg.hide();
+                $btn.prop('disabled', false);
+            }
+        });
+    </script>
+}

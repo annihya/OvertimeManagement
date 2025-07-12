@@ -1,30 +1,31 @@
-﻿using System;
+﻿using OvertimeManagement.Helper;
+using OvertimeManagement.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using OvertimeManagement.Models;
-using System.Threading;
 
 namespace OvertimeManagement.Controllers
 {
     public class OvertimesController : Controller
     {
-        private DBModel db;
+        private readonly OvertimeManagementEntities _db;
 
         public OvertimesController()
         {
-            db = new DBModel();
+            _db = new OvertimeManagementEntities();
         }
 
         // GET: Overtimes
         public async Task<ActionResult> Index()
         {
-            return View(await db.Overtimes.ToListAsync());
+            return View(await _db.Overtimes.ToListAsync());
         }
 
         // GET: Overtimes/Details/5
@@ -34,7 +35,7 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Overtime overtime = await db.Overtimes.FindAsync(id);
+            Overtime overtime = await _db.Overtimes.FindAsync(id);
             if (overtime == null)
             {
                 return HttpNotFound();
@@ -58,8 +59,8 @@ namespace OvertimeManagement.Controllers
             if (ModelState.IsValid)
             {
                 overtime.OvertimeID = Guid.NewGuid();
-                db.Overtimes.Add(overtime);
-                await db.SaveChangesAsync();
+                _db.Overtimes.Add(overtime);
+                await _db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
@@ -73,7 +74,7 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Overtime overtime = await db.Overtimes.FindAsync(id);
+            Overtime overtime = await _db.Overtimes.FindAsync(id);
             if (overtime == null)
             {
                 return HttpNotFound();
@@ -90,8 +91,8 @@ namespace OvertimeManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(overtime).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                _db.Entry(overtime).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
             return View(overtime);
@@ -104,7 +105,7 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Overtime overtime = await db.Overtimes.FindAsync(id);
+            Overtime overtime = await _db.Overtimes.FindAsync(id);
             if (overtime == null)
             {
                 return HttpNotFound();
@@ -117,9 +118,9 @@ namespace OvertimeManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            Overtime overtime = await db.Overtimes.FindAsync(id);
-            db.Overtimes.Remove(overtime);
-            await db.SaveChangesAsync();
+            Overtime overtime = await _db.Overtimes.FindAsync(id);
+            _db.Overtimes.Remove(overtime);
+            await _db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -127,7 +128,7 @@ namespace OvertimeManagement.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }

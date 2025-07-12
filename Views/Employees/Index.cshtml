@@ -1,13 +1,15 @@
-﻿@model IEnumerable<OvertimeManagement.ViewModel.EmployeeViewModel.EmployeeDisplayModel>
+﻿@model IEnumerable<OvertimeManagement.ViewModel.EmployeeDisplayViewModel>
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
     ViewBag.Title = "Index";
 }
 
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    <button id="btnCreateEmployee" class="btn btn-primary">Create New</button>
 </p>
 <table class="table">
     <tr>
@@ -26,26 +28,55 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.NIK)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.FullName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DepartmentName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PositionName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.EmployeeID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.EmployeeID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.EmployeeID })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NIK)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DepartmentName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PositionName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.EmployeeID }) |
+                @Html.ActionLink("Details", "Details", new { id = item.EmployeeID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeID })
+            </td>
+        </tr>
+    }
 
 </table>
+
+<!-- Modal container for Employee Form -->
+<div id="employeeModalContainer"></div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/adminlte")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnCreateEmployee').on('click', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/Employees/Create',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#employeeModalContainer').html(data);
+                        $('#employeeDetailModal_').modal('show'); // Tampilkan modal
+                        $("#NIK").prop("readonly", false);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the form');
+                    }
+                });
+            });
+        });
+    </script>
+}
