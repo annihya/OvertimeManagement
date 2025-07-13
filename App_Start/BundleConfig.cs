@@ -28,6 +28,8 @@ namespace OvertimeManagement
 
             bundles.Add(new StyleBundle("~/Content/adminlte").Include(
                     "~/Content/AdminLTE/bootstrap/css/bootstrap.min.css",
+                    "~/Content/AdminLTE/bootstrap/css/bootstrap-datepicker.min.css",
+                    "~/Content/AdminLTE/bootstrap/css/bootstrap-datetimepicker.min.css",
                     "~/Content/AdminLTE/css/AdminLTE.min.css",
                     "~/Content/AdminLTE/css/skins/skin-blue.min.css",
                     "~/Content/AdminLTE/plugins/font-awesome/css/font-awesome.min.css",
@@ -36,8 +38,11 @@ namespace OvertimeManagement
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/adminlte").Include(
-                    "~/Scripts/AdminLTE/jquery.min.js",
+                    "~/Scripts/jquery-3.7.0.js",
+                    "~/Scripts/AdminLTE/plugins/moment/moment.js",
                     "~/Scripts/AdminLTE/bootstrap/js/bootstrap.min.js",
+                    "~/Scripts/AdminLTE/bootstrap/js/bootstrap-datepicker.min.js",
+                    "~/Scripts/AdminLTE/bootstrap/js/bootstrap-datetimepicker.min.js",
                     "~/Scripts/AdminLTE/js/adminlte.js",
                     "~/Scripts/AdminLTE/js/adminlte.min.js",
                     "~/Scripts/AdminLTE/plugins/chartjs/Chart.min.js",

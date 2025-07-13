@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using OvertimeManagement.Models;
 using OvertimeManagement.ViewModel;
 using OvertimeManagement.Helper;
+using System.Collections.Generic;
 
 namespace OvertimeManagement.Controllers
 {
@@ -24,32 +25,17 @@ namespace OvertimeManagement.Controllers
         // GET: Employees
         public async Task<ActionResult> Index()
         {
-            var employees = await EmployeeHelper.GetEmployees();
+            var employees = await EmployeesHelper.GetEmployees();
 
-            return View(employees);
-        }
-
-        // GET: Employees/Details/5
-        public async Task<ActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Employee employee = await db.Employees.FindAsync(id);
-            if (employee == null)
-            {
-                return HttpNotFound();
-            }
-            return View(employee);
+            return View(employees ?? new List<EmployeeDisplayViewModel>());
         }
 
         // GET: Employees/Create
         public async Task<ActionResult> Create()
         {
-            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments(); 
-            ViewBag.PositionList = await EmployeeHelper.GetPositions();
-            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList();
+            ViewBag.DepartmentList = await EmployeesHelper.GetDepartments(); 
+            ViewBag.PositionList = await EmployeesHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeesHelper.GetAllowanceList();
             ViewBag.IsEditMode = false;
 
             return PartialView("_EmployeeForm");
@@ -60,21 +46,29 @@ namespace OvertimeManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(EmployeeDisplayViewModel model)
         {
-            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments();
-            ViewBag.PositionList = await EmployeeHelper.GetPositions();
-            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(model.Allowance);
+            ViewBag.DepartmentList = await EmployeesHelper.GetDepartments();
+            ViewBag.PositionList = await EmployeesHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeesHelper.GetAllowanceList(model.Allowance);
             ViewBag.IsEditMode = false;
 
             if (!ModelState.IsValid)
             {
-                // Validate error → re-render the PartialView with error messages
-                return PartialView("_EmployeeForm", model); 
+                var invalidFields = ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .Select(ms => ms.Key)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"{string.Join(", ", invalidFields)} value is invalid!",
+                });
             }
 
             try
             {
                 // Check if NIK already exists
-                if (await EmployeeHelper.IsNIKExists(model.NIK))
+                if (await EmployeesHelper.IsNIKExists(model.NIK))
                 {
                     return Json(new
                     {
@@ -90,7 +84,8 @@ namespace OvertimeManagement.Controllers
                     FullName = model.FullName,
                     Allowance = string.Join(",", model.AllowanceList.Where(a => a.IsChecked).Select(a => a.AllowanceType)),
                     DepartmentID = model.DepartmentID,
-                    PositionID = model.PositionID
+                    PositionID = model.PositionID,
+                    CreatedDate = DateTime.Now,
                 };
 
                 db.Employees.Add(employee);
@@ -100,13 +95,16 @@ namespace OvertimeManagement.Controllers
                 {
                     success = true,
                     message = "Employee created successfully.",
-                    redirectUrl = Url.Action("Index", "Employee")
+                    redirectUrl = Url.Action("Index", "Employees")
                 });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred while creating the employee: " + ex.Message);
-                return PartialView("_EmployeeForm", model);
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while creating the employee entry: " + ex.Message
+                });
             }
         }
 
@@ -118,15 +116,15 @@ namespace OvertimeManagement.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            var employee = await EmployeeHelper.GetEmployeeById(id.Value);
+            var employee = await EmployeesHelper.GetEmployeeById(id.Value);
             if (employee == null)
             {
                 return HttpNotFound();
             }
 
-            ViewBag.DepartmentList = new SelectList(db.Departments, "DepartmentID", "Name", employee.DepartmentID);
-            ViewBag.PositionList = new SelectList(db.Positions, "PositionID", "Name", employee.PositionID);
-            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(employee.Allowance);
+            ViewBag.DepartmentList = await EmployeesHelper.GetDepartments();
+            ViewBag.PositionList = await EmployeesHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeesHelper.GetAllowanceList(employee.Allowance);
             ViewBag.IsEditMode = true;
 
             return PartialView("_EmployeeForm", employee);
@@ -137,15 +135,23 @@ namespace OvertimeManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(EmployeeDisplayViewModel model)
         {
-            ViewBag.DepartmentList = await EmployeeHelper.GetDepartments();
-            ViewBag.PositionList = await EmployeeHelper.GetPositions();
-            ViewBag.AllowanceList = EmployeeHelper.GetAllowanceList(model.Allowance);
+            ViewBag.DepartmentList = await EmployeesHelper.GetDepartments();
+            ViewBag.PositionList = await EmployeesHelper.GetPositions();
+            ViewBag.AllowanceList = EmployeesHelper.GetAllowanceList(model.Allowance);
             ViewBag.IsEditMode = true;
 
             if (!ModelState.IsValid)
             {
-                // Validate error → re-render the PartialView with error messages
-                return PartialView("_EmployeeForm", model);
+                var invalidFields = ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .Select(ms => ms.Key)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"{string.Join(", ", invalidFields)} value is invalid!",
+                });
             }
 
             try
@@ -161,6 +167,7 @@ namespace OvertimeManagement.Controllers
                 employee.Allowance = string.Join(",", model.AllowanceList.Where(a => a.IsChecked).Select(a => a.AllowanceType));
                 employee.DepartmentID = model.DepartmentID;
                 employee.PositionID = model.PositionID;
+                employee.LastModifiedDate = DateTime.Now;
 
                 db.Entry(employee).State = EntityState.Modified;
                 await db.SaveChangesAsync();
@@ -168,14 +175,17 @@ namespace OvertimeManagement.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = "Employee created successfully.",
-                    redirectUrl = Url.Action("Index", "Employee")
+                    message = "Employee edited successfully.",
+                    redirectUrl = Url.Action("Index", "Employees")
                 });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred while updating the employee: " + ex.Message);
-                return PartialView("_EmployeeForm", model);
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while editing the employee entry: " + ex.Message
+                });
             }
         }
 
@@ -210,7 +220,7 @@ namespace OvertimeManagement.Controllers
         {
             try
             {
-                var exists = await EmployeeHelper.IsNIKExists(nik);
+                var exists = await EmployeesHelper.IsNIKExists(nik);
                 return Json(!exists, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

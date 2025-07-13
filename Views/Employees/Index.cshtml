@@ -3,34 +3,33 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    ViewBag.Title = "Index";
+    ViewBag.Title = "LIST OF THE EMPLOYEE DATA";
+    var numberOfData = 0;
 }
 
-<h2>Index</h2>
+<h3>@ViewBag.Title</h3>
 
 <p>
-    <button id="btnCreateEmployee" class="btn btn-primary">Create New</button>
+    <button id="btnCreateEmployee" class="btn btn-primary pull-right">Add New</button>
 </p>
 <table class="table">
     <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.NIK)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FullName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DepartmentName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PositionName)
-        </th>
+        <th>No.</th>
+        <th>NIK</th>
+        <th>Name</th>
+        <th>Department Name</th>
+        <th>Position Name</th>
         <th></th>
     </tr>
 
     @foreach (var item in Model)
     {
+        numberOfData++;
+
         <tr>
+            <td>
+                @numberOfData
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.NIK)
             </td>
@@ -44,19 +43,19 @@
                 @Html.DisplayFor(modelItem => item.PositionName)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.EmployeeID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.EmployeeID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeID })
+                <button id="btnEditEmployee_@item.EmployeeID" class="btn btn-warning"><i class="fa fa-edit"></i></button> |
+                <button id="btnDeleteEmployee_@item.EmployeeID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
             </td>
         </tr>
     }
 
 </table>
 
+@section scripts {
+
 <!-- Modal container for Employee Form -->
 <div id="employeeModalContainer"></div>
 
-@section scripts {
     @Scripts.Render("~/bundles/adminlte")
     <script type="text/javascript">
         $(document).ready(function () {
@@ -68,8 +67,29 @@
                     type: 'GET',
                     success: function (data) {
                         $('#employeeModalContainer').html(data);
-                        $('#employeeDetailModal_').modal('show'); // Tampilkan modal
-                        $("#NIK").prop("readonly", false);
+                        $('#employeeDetailModal_').modal('show'); 
+                        $('input[id^="NIK_"]').prop("readonly", false);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the form');
+                    }
+                });
+            });
+
+            $('button[id^="btnEditEmployee_"]').on('click', function (e) {
+                e.preventDefault();
+                let btnID = $(this).attr("id");
+                let employeeID = btnID.replace('btnEditEmployee_', '');
+                console.log(employeeID);
+
+                $.ajax({
+                    url: '/Employees/Edit/' + employeeID,
+                    type: 'GET',
+                    success: function (data) {
+                        $('#employeeModalContainer').html(data);
+                        $('div[id^="employeeDetailModal_"]').modal('show'); 
+                        $('input[id^="NIK_"]').prop("readonly", true);
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading form:', error);

@@ -27,7 +27,11 @@ namespace OvertimeManagement.ViewModel
         public string AllowanceType { get; set; }
         public bool IsChecked { get; set; }
     }
-
+    public class EmployeeDropdown
+    {
+        public Guid EmployeeID { get; set; }
+        public string EmployeeInfo { get; set; }
+    }
     public class EmployeeDisplayViewModelValidator : AbstractValidator<EmployeeDisplayViewModel>
     {
         public EmployeeDisplayViewModelValidator()

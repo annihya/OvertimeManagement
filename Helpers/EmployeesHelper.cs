@@ -12,7 +12,7 @@ using static OvertimeManagement.Helper.Constants.GlobalContants;
 
 namespace OvertimeManagement.Helper
 {
-    public static class EmployeeHelper
+    public static class EmployeesHelper
     {
         public static async Task<List<EmployeeDisplayViewModel>> GetEmployees(Guid? employeeID = null)
         {
@@ -104,6 +104,19 @@ namespace OvertimeManagement.Helper
                     }
                     return a;
                 })
+                .ToList();
+        }
+        public static async Task<List<EmployeeDropdown>> GetEmployeeList()
+        {
+            var employee = await GetEmployees();
+            
+            return employee
+                .Select(e => new EmployeeDropdown
+                {
+                    EmployeeID = e.EmployeeID,
+                    EmployeeInfo = $"{e.NIK} - {e.FullName}"
+                })
+                .OrderBy(e => e.EmployeeInfo)
                 .ToList();
         }
     }

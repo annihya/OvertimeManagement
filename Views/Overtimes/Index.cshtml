@@ -1,57 +1,102 @@
-﻿@model IEnumerable<OvertimeManagement.Models.Overtime>
+﻿@model IEnumerable<OvertimeManagement.ViewModel.OvertimeDisplayViewModel>
 
 @{
-    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.Title = "LIST OF THE OVERTIME DATA";
+    var numberOfData = 0;
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.Title</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    <button id="btnCreateOvertime" class="btn btn-primary pull-right">Add New</button>
 </p>
 <table class="table">
     <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.EmployeeID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TimeStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TimeFinish)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ActualHours)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CalculatedHours)
-        </th>
+        <th>No.</th>
+        <th>NIK</th>
+        <th>Time Start</th>
+        <th>Time Finish</th>
+        <th>Actual Hours</th>
+        <th>Calculated Hours</th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.EmployeeID)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TimeStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TimeFinish)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ActualHours)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CalculatedHours)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.OvertimeID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.OvertimeID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.OvertimeID })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        numberOfData++;
+
+        <tr>
+            <td>
+                @numberOfData
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NIK)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TimeFinish)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ActualHours)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CalculatedHours)
+            </td>
+            <td>
+                <button id="btnEditOvertime_@item.OvertimeID" class="btn btn-warning"><i class="fa fa-edit"></i></button> |
+                <button id="btnDeleteOvertime_@item.OvertimeID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+            </td>
+        </tr>
+    }
 
 </table>
+
+<!-- Modal container for Overtime Form -->
+<div id="overtimeModalContainer"></div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnCreateOvertime').on('click', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/Overtimes/Create',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#overtimeModalContainer').html(data);
+                        $('#overtimeDetailModal_').modal('show'); 
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the form');
+                    }
+                });
+            });
+
+            $('button[id^="btnEditOvertime_"]').on('click', function (e) {
+                e.preventDefault();
+                let btnID = $(this).attr("id");
+                let overtimeID = btnID.replace('btnEditOvertime_', '');
+                console.log(overtimeID);
+
+                $.ajax({
+                    url: '/Overtimes/Edit/' + overtimeID,
+                    type: 'GET',
+                    success: function (data) {
+                        $('#overtimeModalContainer').html(data);
+                        $('div[id^="overtimeDetailModal_"]').modal('show'); 
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading form:', error);
+                        alert('Failed to load the form');
+                    }
+                });
+            });
+        });
+    </script>
+}

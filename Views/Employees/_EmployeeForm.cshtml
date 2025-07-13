@@ -15,7 +15,7 @@
     <div class="modal-dialog" role="document">
         <form id="employeeForm_@employeeID" method="post" action="@Url.Action(formAction, "Employees")">
             @Html.AntiForgeryToken()
-            @if (!isEditMode)
+            @if (isEditMode)
             {
                 @Html.HiddenFor(model => model.EmployeeID)
             }
@@ -39,28 +39,34 @@
                     </div>
 
                     <div class="form-group">
-                        @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "control-label" })
-                        @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @id = $"FullName_{employeeID}", @class = "form-control", placeholder = "Full name" } })
+                        @Html.Label("Name", htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @id = $"FullName_{employeeID}", @class = "form-control", placeholder = "Name" } })
                         @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="form-group">
-                        @Html.LabelFor(model => model.DepartmentID, htmlAttributes: new { @class = "control-label" })
+                        @Html.Label("Department", htmlAttributes: new { @class = "control-label" })
                         @Html.DropDownListFor(model => model.DepartmentID, new SelectList(departmentList, "DepartmentID", "DepartmentName"), "-- Select Department --", new { @id = $"DepartmentID_{employeeID}", @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.DepartmentID, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="form-group">
-                        @Html.LabelFor(model => model.PositionID, htmlAttributes: new { @class = "control-label" })
+                        @Html.Label("Position", htmlAttributes: new { @class = "control-label" })
                         @Html.DropDownListFor(model => model.PositionID, new SelectList(positionList, "PositionID", "PositionName"), "-- Select Position --", new { @id = $"PositionID_{employeeID}", @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.PositionID, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="form-group">
-                        @Html.LabelFor(model => model.AllowanceList, htmlAttributes: new { @class = "control-label" })
+                        @Html.Label("Allowance", htmlAttributes: new { @class = "control-label" })
                         @for (int i = 0; i < allowanceList.Count; i++)
                         {
-                            <div class="checkbox">
+                            var isLaptop = allowanceList[i].AllowanceType == "Laptop";
+                            var laptopClass = isLaptop ? "allowance-laptop" : "";
+
+                            var isMeal = allowanceList[i].AllowanceType == "Meal";
+                            var mealClass = isMeal ? "allowance-meal" : "";
+
+                            <div class="checkbox @laptopClass @mealClass">
                                 <label>
                                     @Html.CheckBox($"AllowanceList[{i}].IsChecked", allowanceList[i].IsChecked)
                                     @Html.Hidden($"AllowanceList[{i}].AllowanceType", allowanceList[i].AllowanceType)
@@ -81,62 +87,86 @@
     </div>
 </div>
 
-@section Scripts {
-    @Scripts.Render("~/bundles/adminlte")
+<script type="text/javascript">
+    $(document).ready(function (e) {
+        $('#PositionID_@employeeID').trigger('change');
+    });
 
-    <script type="text/javascript">
-        // AJAX form submit on form submit event
-        $(document).on('submit', '#employeeForm_@employeeID', function (e) {
-            e.preventDefault();
-            var $form = $(this);
-            var employeeID = '@employeeID';
-            var $btn = $('#saveBtn_' + employeeID);
-            $btn.prop('disabled', true);
-            $.ajax({
-                url: $form.attr('action') || window.location.pathname,
-                type: 'POST',
-                data: $form.serialize(),
-                success: function (result) {
-                    if (result.success) {
-                        $('#employeeDetailModal_' + employeeID).modal('hide');
-                        location.reload();
-                    } else if (result.message) {
-                        alert(result.message);
-                        $btn.prop('disabled', false);
-                    } else {
-                        // Replace modal content with returned partial view (validation errors)
-                        $('#employeeModalContainer').html(result);
-                    }
-                },
-                error: function () {
-                    alert('An error occurred while saving the employee.');
+    $(document).on('change', '#PositionID_@employeeID', function (e) {
+        var selectedPosition = $(this).find("option:selected").text().trim();
+        debugger;
+        if (selectedPosition === 'Manager' || selectedPosition === 'Supervisor') {
+            $('.allowance-laptop').show();
+            
+        } else {
+            $('.allowance-laptop').hide();
+            $('.allowance-laptop input[type="checkbox"]').prop('checked', false);
+        }
+
+        if (selectedPosition === 'Manager') {
+            $('.allowance-meal').hide();
+            $('.allowance-meal input[type="checkbox"]').prop('checked', false);
+        }
+        else {
+            $('.allowance-meal').show();
+        }
+    });
+
+    // NIK duplicate check
+    $(document).on('blur change', '[id^="NIK_"]', function () {
+        var $input = $(this);
+        var nik = $input.val();
+        var employeeID = this.id.replace('NIK_', '');
+        var $btn = $('#saveBtn_' + employeeID);
+        var $msg = $('#nik-duplicate-message');
+
+        if (nik) {
+            $.post('/Employees/CheckNIKAvailability', { nik: nik }, function (result) {
+                if (!result) {
+                    $msg.show();
+                    $btn.prop('disabled', true);
+                } else {
+                    $msg.hide();
                     $btn.prop('disabled', false);
                 }
             });
-        });
+        } else {
+            $msg.hide();
+            $btn.prop('disabled', false);
+        }
+    });
 
-        // NIK duplicate check
-        $(document).on('blur change', '[id^="NIK_"]', function () {
-            var $input = $(this);
-            var nik = $input.val();
-            var employeeID = this.id.replace('NIK_', '');
-            var $btn = $('#saveBtn_' + employeeID);
-            var $msg = $('#nik-duplicate-message');
+    // AJAX form submit on form submit event
+    $(document).on('submit', '#employeeForm_@employeeID', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var employeeID = '@employeeID';
+        var $btn = $('#saveBtn_' + employeeID);
+        $btn.prop('disabled', true);
+        var formData = $form.serializeObject();
+        debugger;
 
-            if (nik) {
-                $.post('/Employees/CheckNIKAvailability', { nik: nik }, function (result) {
-                    if (!result) {
-                        $msg.show();
-                        $btn.prop('disabled', true);
-                    } else {
-                        $msg.hide();
-                        $btn.prop('disabled', false);
-                    }
-                });
-            } else {
-                $msg.hide();
+        $.ajax({
+            url: $form.attr('action') || window.location.pathname,
+            type: 'POST',
+            data: JSON.stringify(formData),
+            success: function (result) {
+                if (result.success) {
+                    $('#employeeDetailModal_' + employeeID).modal('hide');
+                    alert(result.message);
+                    window.location.href = result.redirectUrl;
+                } else if (result.message) {
+                    alert(result.message);
+                    $btn.prop('disabled', false);
+                } else {
+                    // Replace modal content with returned partial view (validation errors)
+                    $('#employeeModalContainer').html(result);
+                }
+            },
+            error: function () {
+                alert('An error occurred while saving the employee.');
                 $btn.prop('disabled', false);
             }
         });
-    </script>
-}
+    });
+</script>

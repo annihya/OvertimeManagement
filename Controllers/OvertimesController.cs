@@ -1,5 +1,6 @@
 ﻿using OvertimeManagement.Helper;
 using OvertimeManagement.Models;
+using OvertimeManagement.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,56 +16,95 @@ namespace OvertimeManagement.Controllers
 {
     public class OvertimesController : Controller
     {
-        private readonly OvertimeManagementEntities _db;
+        private readonly OvertimeManagementEntities db;
 
         public OvertimesController()
         {
-            _db = new OvertimeManagementEntities();
+            db = new OvertimeManagementEntities();
         }
 
         // GET: Overtimes
         public async Task<ActionResult> Index()
         {
-            return View(await _db.Overtimes.ToListAsync());
-        }
+            var overtimes = await OvertimesHelper.GetOvertimes();
 
-        // GET: Overtimes/Details/5
-        public async Task<ActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Overtime overtime = await _db.Overtimes.FindAsync(id);
-            if (overtime == null)
-            {
-                return HttpNotFound();
-            }
-            return View(overtime);
+            return View(overtimes ?? new List<ViewModel.OvertimeDisplayViewModel>());
         }
 
         // GET: Overtimes/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            return View();
+            ViewBag.EmployeeList = await EmployeesHelper.GetEmployeeList();
+            ViewBag.IsEditMode = false;
+
+            return PartialView("_OvertimeForm");
         }
 
         // POST: Overtimes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime)
+        public async Task<ActionResult> Create(OvertimeDisplayViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.EmployeeList = await EmployeesHelper.GetEmployeeList();
+            ViewBag.IsEditMode = false;
+
+            if (!ModelState.IsValid)
             {
-                overtime.OvertimeID = Guid.NewGuid();
-                _db.Overtimes.Add(overtime);
-                await _db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                var invalidFields = ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .Select(ms => ms.Key)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"{string.Join(", ", invalidFields)} value is invalid!",
+                });
             }
 
-            return View(overtime);
+            try
+            {
+                // Check for duplicate overtime
+                var calculatedHours = OvertimesHelper.CalculateOvertimeHours(model.TimeStart, model.TimeFinish);
+                var overtime = new Overtime
+                {
+                    OvertimeID = Guid.NewGuid(),
+                    EmployeeID = model.EmployeeID,
+                    TimeStart = model.TimeStart,
+                    TimeFinish = model.TimeFinish,
+                    ActualHours = model.ActualHours,
+                    CalculatedHours = model.CalculatedHours,
+                    CreatedDate = DateTime.Now,
+                };
+
+                if (await OvertimesHelper.IsOvertimeDuplicate(overtime))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Duplicate overtime entry detected"
+                    });
+                }
+
+                db.Overtimes.Add(overtime);
+                await db.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Overtime created successfully.",
+                    redirectUrl = Url.Action("Index", "Overtime")
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the error (uncomment dex variable name and write a log.)
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while creating the overtime entry: " + ex.Message
+                });
+            }
         }
 
         // GET: Overtimes/Edit/5
@@ -74,28 +114,84 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Overtime overtime = await _db.Overtimes.FindAsync(id);
+
+            var overtime = await OvertimesHelper.GetOvertimeById(id.Value);
             if (overtime == null)
             {
                 return HttpNotFound();
             }
-            return View(overtime);
+
+            ViewBag.EmployeeList = await EmployeesHelper.GetEmployeeList();
+            ViewBag.IsEditMode = true;
+
+            return PartialView("_OvertimeForm", overtime);
         }
 
         // POST: Overtimes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "OvertimeID,EmployeeID,TimeStart,TimeFinish,ActualHours,CalculatedHours")] Overtime overtime)
+        public async Task<ActionResult> Edit(OvertimeDisplayViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.EmployeeList = await EmployeesHelper.GetEmployeeList();
+            ViewBag.IsEditMode = true;
+
+            if (!ModelState.IsValid)
             {
-                _db.Entry(overtime).State = EntityState.Modified;
-                await _db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                var invalidFields = ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .Select(ms => ms.Key)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"{string.Join(", ", invalidFields)} value is invalid!",
+                });
             }
-            return View(overtime);
+
+            try
+            {
+                var overtime = await db.Overtimes.FindAsync(model.OvertimeID);
+                if (overtime == null)
+                {
+                    return HttpNotFound();
+                }
+
+                overtime.EmployeeID = model.EmployeeID;
+                overtime.TimeStart = model.TimeStart;
+                overtime.TimeFinish = model.TimeFinish;
+                overtime.ActualHours = model.ActualHours;
+                overtime.CalculatedHours = model.CalculatedHours;
+                overtime.LastModifiedDate = DateTime.Now;
+
+                if (await OvertimesHelper.IsOvertimeDuplicate(overtime))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Duplicate overtime entry detected",
+                        redirectUrl = Url.Action("Index", "Overtime")
+                    });
+                }
+
+                db.Entry(overtime).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Overtime edited successfully.",
+                    redirectUrl = Url.Action("Index", "Overtime")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while editing the overtime entry: " + ex.Message
+                });
+            }
         }
 
         // GET: Overtimes/Delete/5
@@ -105,7 +201,7 @@ namespace OvertimeManagement.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Overtime overtime = await _db.Overtimes.FindAsync(id);
+            Overtime overtime = await db.Overtimes.FindAsync(id);
             if (overtime == null)
             {
                 return HttpNotFound();
@@ -118,9 +214,9 @@ namespace OvertimeManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            Overtime overtime = await _db.Overtimes.FindAsync(id);
-            _db.Overtimes.Remove(overtime);
-            await _db.SaveChangesAsync();
+            Overtime overtime = await db.Overtimes.FindAsync(id);
+            db.Overtimes.Remove(overtime);
+            await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -128,7 +224,7 @@ namespace OvertimeManagement.Controllers
         {
             if (disposing)
             {
-                _db.Dispose();
+                db.Dispose();
             }
             base.Dispose(disposing);
         }

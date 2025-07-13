@@ -5,26 +5,24 @@
 <main>
     <div class="row">
         <div class="col-lg-4">
-            <div class="info-box">
-                <span class="info-box-icon bg-info"><i class="far fa-envelope"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">
-                        <a href="@Url.Action("Index", "Employees")">Employee</a>
-                    </span>
-                    <span class="info-box-number">1,410</span>
+            <a href="@Url.Action("Index", "Employees")" class="text-dark" style="text-decoration: none;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Employee</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-4">
-            <div class="info-box">
-                <span class="info-box-icon bg-info"><i class="far fa-envelope"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">
-                        <a href="@Url.Action("Index", "Overtimes")">Overtime</a>
-                    </span>
-                    <span class="info-box-number">1,410</span>
+            <a href="@Url.Action("Index", "Overtimes")" class="text-dark" style="text-decoration: none;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-clock-o"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Overtime</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </main>

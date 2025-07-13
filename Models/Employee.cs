@@ -20,5 +20,7 @@ namespace OvertimeManagement.Models
         public string Allowance { get; set; }
         public System.Guid DepartmentID { get; set; }
         public System.Guid PositionID { get; set; }
+        public System.DateTime CreatedDate { get; set; }
+        public Nullable<System.DateTime> LastModifiedDate { get; set; }
     }
 }
