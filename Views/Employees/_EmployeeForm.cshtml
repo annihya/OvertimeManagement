@@ -90,12 +90,12 @@
 <script type="text/javascript">
     $(document).ready(function (e) {
         $('#PositionID_@employeeID').trigger('change');
+    });
 
-        $('.select2').select2({
-            width: '100%',
-            placeholder: "Select an option",
-            allowClear: true
-        });
+    $('.select2').select2({
+        width: '100%',
+        placeholder: "Select an option",
+        allowClear: true
     });
 
     $(document).on('change', '#PositionID_@employeeID', function (e) {
@@ -103,7 +103,7 @@
         debugger;
         if (selectedPosition === 'Manager' || selectedPosition === 'Supervisor') {
             $('.allowance-laptop').show();
-            
+
         } else {
             $('.allowance-laptop').hide();
             $('.allowance-laptop input[type="checkbox"]').prop('checked', false);

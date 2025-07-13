@@ -72,26 +72,24 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function (e) {
-        $('.select2').select2({
-            width: '100%',
-            placeholder: "Select an option",
-            allowClear: true
-        });
+    $('.select2').select2({
+        width: '100%',
+        placeholder: "Select an option",
+        allowClear: true
+    });
 
-        $('#TimeStart_@overtimeID').datetimepicker({
-            //format: 'YYYY-MM-DD HH:mm',
-            showTodayButton: true,
-            showClear: true,
-            useCurrent: false
-        });
+    $('#TimeStart_@overtimeID').datetimepicker({
+        //format: 'YYYY-MM-DD HH:mm',
+        showTodayButton: true,
+        showClear: true,
+        useCurrent: false
+    });
 
-        $('#TimeFinish_@overtimeID').datetimepicker({
-            //format: 'YYYY-MM-DD HH:mm',
-            showTodayButton: true,
-            showClear: true,
-            useCurrent: false
-        });
+    $('#TimeFinish_@overtimeID').datetimepicker({
+        //format: 'YYYY-MM-DD HH:mm',
+        showTodayButton: true,
+        showClear: true,
+        useCurrent: false
     });
 
     // On change TimeStart
@@ -124,6 +122,10 @@
         var $btn = $('#saveBtn_' + overtimeID);
         $btn.prop('disabled', true);
         debugger;
+
+        if (parseFloat($('#ActualHours_@overtimeID').val()) > 3) {
+            alert('Maximum overtime is 3 hours!');
+        }
 
         $.ajax({
             url: $form.attr('action') || window.location.pathname,

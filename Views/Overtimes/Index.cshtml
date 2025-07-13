@@ -9,6 +9,13 @@
 
 <h3 class="page-title">@ViewBag.Title</h3>
 
+@using (Html.BeginForm())
+{
+    <div style="display:none">
+        @Html.AntiForgeryToken()
+    </div>
+}
+
 <div class="pull-right mb-2">
     <button id="btnCreateOvertime" class="btn btn-primary btn-sm">Add New</button>
 </div>
@@ -88,7 +95,14 @@
                     type: 'GET',
                     success: function (data) {
                         $('#overtimeModalContainer').html(data);
-                        $('#overtimeDetailModal_').modal('show'); 
+                        $('#overtimeDetailModal_').modal('show');
+
+                        $('.select2').select2({
+                            dropdownParent: $('div[id^="overtimeDetailModal_"]'),
+                            width: '100%',
+                            placeholder: "Select an option",
+                            allowClear: true
+                        });
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading form:', error);
@@ -108,13 +122,44 @@
                     type: 'GET',
                     success: function (data) {
                         $('#overtimeModalContainer').html(data);
-                        $('div[id^="overtimeDetailModal_"]').modal('show'); 
+                        $('div[id^="overtimeDetailModal_"]').modal('show');
+
+                        $('.select2').select2({
+                            dropdownParent: $('div[id^="overtimeDetailModal_"]'),
+                            width: '100%',
+                            placeholder: "Select an option",
+                            allowClear: true
+                        });
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading form:', error);
                         alert('Failed to load the form');
                     }
                 });
+            });
+
+
+            $('button[id^="btnDeleteOvertime_"]').on('click', function (e) {
+                e.preventDefault();
+                let btnID = $(this).attr("id");
+                let employeeID = btnID.replace('btnDeleteOvertime_', '');
+
+                if (confirm('Are you sure you want to delete this data?')) {
+                    $.ajax({
+                        url: '/Overtimes/Delete/' + employeeID,
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function () {
+                            alert('Data deleted successfully.');
+                            location.reload();
+                        },
+                        error: function () {
+                            alert('Failed to delete data.');
+                        }
+                    });
+                }
             });
         });
     </script>

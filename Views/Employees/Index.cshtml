@@ -9,6 +9,13 @@
 
 <h3 class="page-title">@ViewBag.Title</h3>
 
+@using (Html.BeginForm())
+{
+    <div style="display:none">
+        @Html.AntiForgeryToken()
+    </div>
+}
+
 <div class="pull-right mb-2">
     <button id="btnCreateEmployee" class="btn btn-primary btn-sm">Add New</button>
 </div>
@@ -58,8 +65,8 @@
 
 @section scripts {
 
-<!-- Modal container for Employee Form -->
-<div id="employeeModalContainer"></div>
+    <!-- Modal container for Employee Form -->
+    <div id="employeeModalContainer"></div>
 
     @Scripts.Render("~/bundles/adminlte")
     <script type="text/javascript">
@@ -86,7 +93,15 @@
                     type: 'GET',
                     success: function (data) {
                         $('#employeeModalContainer').html(data);
-                        $('#employeeDetailModal_').modal('show'); 
+                        $('#employeeDetailModal_').modal('show');
+
+                        $('.select2').select2({
+                            dropdownParent: $('div[id^="employeeDetailModal_"]'),
+                            width: '100%',
+                            placeholder: "Select an option",
+                            allowClear: true
+                        });
+
                         $('input[id^="NIK_"]').prop("readonly", false);
                     },
                     error: function (xhr, status, error) {
@@ -107,7 +122,15 @@
                     type: 'GET',
                     success: function (data) {
                         $('#employeeModalContainer').html(data);
-                        $('div[id^="employeeDetailModal_"]').modal('show'); 
+                        $('div[id^="employeeDetailModal_"]').modal('show');
+
+                        $('.select2').select2({
+                            dropdownParent: $('div[id^="employeeDetailModal_"]'),
+                            width: '100%',
+                            placeholder: "Select an option",
+                            allowClear: true
+                        });
+
                         $('input[id^="NIK_"]').prop("readonly", true);
                     },
                     error: function (xhr, status, error) {
@@ -115,6 +138,29 @@
                         alert('Failed to load the form');
                     }
                 });
+            });
+
+            $('button[id^="btnDeleteEmployee_"]').on('click', function (e) {
+                e.preventDefault();
+                let btnID = $(this).attr("id");
+                let employeeID = btnID.replace('btnDeleteEmployee_', '');
+
+                if (confirm('Are you sure you want to delete this data?')) {
+                    $.ajax({
+                        url: '/Employees/Delete/' + employeeID,
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function () {
+                            alert('Data deleted successfully.');
+                            location.reload();
+                        },
+                        error: function () {
+                            alert('Failed to delete data.');
+                        }
+                    });
+                }
             });
         });
     </script>
