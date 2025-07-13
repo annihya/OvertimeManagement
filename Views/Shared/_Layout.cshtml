@@ -6,6 +6,7 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/adminlte")
     @Scripts.Render("~/bundles/modernizr")
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet" />
 
     <style>
         .glyphicon {
@@ -16,6 +17,170 @@
             line-height: 1;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Open Sans', 'Segoe UI', sans-serif;
+        }
+
+        .dashboard-tile {
+            display: block;
+            border-radius: 10px;
+            padding: 35px 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            color: #fff;
+            margin-bottom: 20px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .tile-blue {
+            background-color: #a3c9f5;
+        }
+
+            .tile-blue:hover {
+                background-color: #91bbee;
+                transform: translateY(-3px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            }
+
+        .tile-green {
+            background-color: #b5e7b3;
+        }
+
+            .tile-green:hover {
+                background-color: #a3dc9f;
+                transform: translateY(-3px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            text-align: right;
+            margin-top: 15px;
+        }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                display: inline-block;
+                margin: 0 4px;
+                padding: 5px 10px;
+                color: #337ab7 !important;
+                text-decoration: none;
+                border-radius: 50px;
+                background-color: transparent;
+                border: none;
+                font-size: 14px;
+                transition: background-color 0.2s ease-in-out, color 0.2s;
+            }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                    background-color: rgba(51, 122, 183, 0.1);
+                    color: #23527c !important;
+                }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                    font-weight: bold;
+                    background-color: #337ab7;
+                    color: white !important;
+                }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+                    color: #aaa !important;
+                    cursor: not-allowed;
+                    opacity: 0.5;
+                }
+
+                .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+                    outline: none;
+                    box-shadow: none;
+                }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            height: 34px;
+            box-shadow: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+            .dataTables_wrapper .dataTables_filter input:focus,
+            .dataTables_wrapper .dataTables_length select:focus {
+                border-color: #66afe9;
+                outline: none;
+                box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
+            }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 10px;
+        }
+
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 10px;
+        }
+
+        .form-horizontal .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-horizontal .control-label {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .form-control, .select2-container--default .select2-selection--single {
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 6px 12px;
+            height: 34px;
+            transition: border-color 0.2s ease-in-out;
+        }
+
+        .select2-selection__rendered {
+            line-height: 30px !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 34px !important;
+        }
+
+        .select2-selection__arrow {
+            height: 34px !important;
+        }
+
+        .form-control:focus,
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #66afe9;
+            box-shadow: 0 0 5px rgba(102, 175, 233, 0.3);
+            outline: none;
+        }
+
+        .checkbox label {
+            font-weight: normal;
+        }
+
+        .btn {
+            border-radius: 4px;
+            padding: 6px 16px;
         }
     </style>
 </head>

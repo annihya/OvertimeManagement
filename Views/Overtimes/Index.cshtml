@@ -3,55 +3,60 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    ViewBag.Title = "LIST OF THE OVERTIME DATA";
+    ViewBag.Title = "List of the Overtime Data";
     var numberOfData = 0;
 }
 
-<h2>@ViewBag.Title</h2>
+<h3 class="page-title">@ViewBag.Title</h3>
 
-<p>
-    <button id="btnCreateOvertime" class="btn btn-primary pull-right">Add New</button>
-</p>
-<table class="table">
-    <tr>
-        <th>No.</th>
-        <th>NIK</th>
-        <th>Time Start</th>
-        <th>Time Finish</th>
-        <th>Actual Hours</th>
-        <th>Calculated Hours</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        numberOfData++;
-
+<div class="pull-right mb-2">
+    <button id="btnCreateOvertime" class="btn btn-primary btn-sm">Add New</button>
+</div>
+<br />
+<table class="table table-striped table-bordered" id="overtimeTable">
+    <thead>
         <tr>
-            <td>
-                @numberOfData
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NIK)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TimeStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TimeFinish)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActualHours)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CalculatedHours)
-            </td>
-            <td>
-                <button id="btnEditOvertime_@item.OvertimeID" class="btn btn-warning"><i class="fa fa-edit"></i></button> |
-                <button id="btnDeleteOvertime_@item.OvertimeID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-            </td>
+            <th>No.</th>
+            <th>NIK</th>
+            <th>Time Start</th>
+            <th>Time Finish</th>
+            <th>Actual Hours</th>
+            <th>Calculated Hours</th>
+            <th></th>
         </tr>
-    }
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            numberOfData++;
+
+            <tr>
+                <td>
+                    @numberOfData
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NIK)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimeStart)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimeFinish)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ActualHours)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CalculatedHours)
+                </td>
+                <td>
+                    <button id="btnEditOvertime_@item.OvertimeID" class="btn btn-warning"><i class="fa fa-edit"></i></button> |
+                    <button id="btnDeleteOvertime_@item.OvertimeID" class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
 
 </table>
 
@@ -61,6 +66,20 @@
 @section scripts {
     <script type="text/javascript">
         $(document).ready(function () {
+            $('#overtimeTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                searching: true,
+                ordering: true,
+                responsive: true,
+                language: {
+                    paginate: {
+                        previous: '&laquo;',
+                        next: '&raquo;'
+                    }
+                }
+            });
+
             $('#btnCreateOvertime').on('click', function (e) {
                 e.preventDefault();
 

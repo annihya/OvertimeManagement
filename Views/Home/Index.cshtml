@@ -4,24 +4,14 @@
 
 <main>
     <div class="row">
-        <div class="col-lg-4">
-            <a href="@Url.Action("Index", "Employees")" class="text-dark" style="text-decoration: none;">
-                <div class="info-box">
-                    <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Employee</span>
-                    </div>
-                </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Index", "Employees")" class="dashboard-tile tile-blue">
+                Employee
             </a>
         </div>
-        <div class="col-lg-4">
-            <a href="@Url.Action("Index", "Overtimes")" class="text-dark" style="text-decoration: none;">
-                <div class="info-box">
-                    <span class="info-box-icon bg-info"><i class="fa fa-clock-o"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Overtime</span>
-                    </div>
-                </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Index", "Overtimes")" class="dashboard-tile tile-green">
+                Overtime
             </a>
         </div>
     </div>

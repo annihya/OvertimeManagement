@@ -30,15 +30,19 @@ namespace OvertimeManagement
                     "~/Content/AdminLTE/bootstrap/css/bootstrap.min.css",
                     "~/Content/AdminLTE/bootstrap/css/bootstrap-datepicker.min.css",
                     "~/Content/AdminLTE/bootstrap/css/bootstrap-datetimepicker.min.css",
+                    "~/Content/AdminLTE/bootstrap/css/dataTables.bootstrap.min.css",
                     "~/Content/AdminLTE/css/AdminLTE.min.css",
                     "~/Content/AdminLTE/css/skins/skin-blue.min.css",
                     "~/Content/AdminLTE/plugins/font-awesome/css/font-awesome.min.css",
                     "~/Content/AdminLTE/plugins/ionicons/ionicons.min.css",
+                    "~/Content/AdminLTE/plugins/select2/select2.min.css",
                     "~/Content/AdminLTE/plugins/daterangepicker/daterangepicker.css"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/adminlte").Include(
                     "~/Scripts/jquery-3.7.0.js",
+                    "~/Scripts/AdminLTE/jquery-ui.js",
+                    "~/Scripts/AdminLTE/jquery.dataTables.min.js",
                     "~/Scripts/AdminLTE/plugins/moment/moment.js",
                     "~/Scripts/AdminLTE/bootstrap/js/bootstrap.min.js",
                     "~/Scripts/AdminLTE/bootstrap/js/bootstrap-datepicker.min.js",
@@ -46,7 +50,8 @@ namespace OvertimeManagement
                     "~/Scripts/AdminLTE/js/adminlte.js",
                     "~/Scripts/AdminLTE/js/adminlte.min.js",
                     "~/Scripts/AdminLTE/plugins/chartjs/Chart.min.js",
-                    "~/Scripts/AdminLTE/plugins/daterangepicker/daterangepicker.js"
+                    "~/Scripts/AdminLTE/plugins/daterangepicker/daterangepicker.js",
+                    "~/Scripts/AdminLTE/plugins/select2/select2.min.js"
                 ));
         }
     }

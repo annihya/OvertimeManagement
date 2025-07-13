@@ -46,13 +46,13 @@
 
                     <div class="form-group">
                         @Html.Label("Department", htmlAttributes: new { @class = "control-label" })
-                        @Html.DropDownListFor(model => model.DepartmentID, new SelectList(departmentList, "DepartmentID", "DepartmentName"), "-- Select Department --", new { @id = $"DepartmentID_{employeeID}", @class = "form-control" })
+                        @Html.DropDownListFor(model => model.DepartmentID, new SelectList(departmentList, "DepartmentID", "DepartmentName"), "-- Select Department --", new { @id = $"DepartmentID_{employeeID}", @class = "form-control select2" })
                         @Html.ValidationMessageFor(model => model.DepartmentID, "", new { @class = "text-danger" })
                     </div>
 
                     <div class="form-group">
                         @Html.Label("Position", htmlAttributes: new { @class = "control-label" })
-                        @Html.DropDownListFor(model => model.PositionID, new SelectList(positionList, "PositionID", "PositionName"), "-- Select Position --", new { @id = $"PositionID_{employeeID}", @class = "form-control" })
+                        @Html.DropDownListFor(model => model.PositionID, new SelectList(positionList, "PositionID", "PositionName"), "-- Select Position --", new { @id = $"PositionID_{employeeID}", @class = "form-control select2" })
                         @Html.ValidationMessageFor(model => model.PositionID, "", new { @class = "text-danger" })
                     </div>
 
@@ -90,6 +90,12 @@
 <script type="text/javascript">
     $(document).ready(function (e) {
         $('#PositionID_@employeeID').trigger('change');
+
+        $('.select2').select2({
+            width: '100%',
+            placeholder: "Select an option",
+            allowClear: true
+        });
     });
 
     $(document).on('change', '#PositionID_@employeeID', function (e) {
@@ -143,13 +149,12 @@
         var employeeID = '@employeeID';
         var $btn = $('#saveBtn_' + employeeID);
         $btn.prop('disabled', true);
-        var formData = $form.serializeObject();
         debugger;
 
         $.ajax({
             url: $form.attr('action') || window.location.pathname,
             type: 'POST',
-            data: JSON.stringify(formData),
+            data: $form.serialize(),
             success: function (result) {
                 if (result.success) {
                     $('#employeeDetailModal_' + employeeID).modal('hide');

@@ -31,7 +31,7 @@
 
                     <div class="form-group">
                         @Html.Label("NIK", htmlAttributes: new { @class = "control-label" })
-                        @Html.DropDownListFor(model => model.EmployeeID, new SelectList(employeeList, "EmployeeID", "EmployeeInfo"), "-- Select Employee --", new { @id = $"EmployeeID_{overtimeID}", @class = "form-control" })
+                        @Html.DropDownListFor(model => model.EmployeeID, new SelectList(employeeList, "EmployeeID", "EmployeeInfo"), "-- Select Employee --", new { @id = $"EmployeeID_{overtimeID}", @class = "form-control select2" })
                         @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
                     </div>
 
@@ -72,18 +72,26 @@
 </div>
 
 <script type="text/javascript">
-    $('#TimeStart_@overtimeID').datetimepicker({
-        //format: 'YYYY-MM-DD HH:mm',
-        showTodayButton: true,
-        showClear: true,
-        useCurrent: false
-    });
+    $(document).ready(function (e) {
+        $('.select2').select2({
+            width: '100%',
+            placeholder: "Select an option",
+            allowClear: true
+        });
 
-    $('#TimeFinish_@overtimeID').datetimepicker({
-        //format: 'YYYY-MM-DD HH:mm',
-        showTodayButton: true,
-        showClear: true,
-        useCurrent: false
+        $('#TimeStart_@overtimeID').datetimepicker({
+            //format: 'YYYY-MM-DD HH:mm',
+            showTodayButton: true,
+            showClear: true,
+            useCurrent: false
+        });
+
+        $('#TimeFinish_@overtimeID').datetimepicker({
+            //format: 'YYYY-MM-DD HH:mm',
+            showTodayButton: true,
+            showClear: true,
+            useCurrent: false
+        });
     });
 
     // On change TimeStart
@@ -115,7 +123,6 @@
         var overtimeID = '@overtimeID';
         var $btn = $('#saveBtn_' + overtimeID);
         $btn.prop('disabled', true);
-        var formData = $form.serializeObject();
         debugger;
 
         $.ajax({

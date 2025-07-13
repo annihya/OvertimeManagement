@@ -4,11 +4,11 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="8270fb3e37c94fd3967abed7dc114a5d" Name="Diagram1">
-        <EntityTypeShape EntityType="OvertimeManagementModel.Department" Width="1.5" PointX="0.75" PointY="0.75" />
-        <EntityTypeShape EntityType="OvertimeManagementModel.Employee" Width="1.5" PointX="2.75" PointY="0.75" />
-        <EntityTypeShape EntityType="OvertimeManagementModel.Overtime" Width="1.5" PointX="4.75" PointY="0.75" />
-        <EntityTypeShape EntityType="OvertimeManagementModel.Position" Width="1.5" PointX="0.75" PointY="4.75" />
+      <Diagram DiagramId="0b9f2ddac8354c589c8b71103824e407" Name="Diagram1">
+        <EntityTypeShape EntityType="OvertimeManagementModel.Department" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="OvertimeManagementModel.Employee" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="OvertimeManagementModel.Overtime" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="OvertimeManagementModel.Position" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
